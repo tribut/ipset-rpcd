@@ -24,7 +24,7 @@ def start(user, mac, ip, role, timeout):
 def stop(user, mac, ip, role, timeout):
     logging.info((
         'Removing entry for {user} ({mac}, {ip}, {role}) '
-        'with timeout {timeout}').format(
+        ).format(
         user=user, mac=mac, ip=ip, role=role, timeout=timeout))
     ret = subprocess.call([
         "sudo", "ipset", "del", "-exist",
