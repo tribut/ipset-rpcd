@@ -1,0 +1,2 @@
+ipset-rpcd ALL = (root) NOPASSWD: /sbin/ipset add -exist role-*
+ipset-rpcd ALL = (root) NOPASSWD: /sbin/ipset del -exist role-*
