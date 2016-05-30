@@ -1,0 +1,13 @@
+[Unit]
+Description=Ipset-RPC Daemon
+After=network.target
+
+[Service]
+Type=simple
+User=ipset-rpcd
+WorkingDirectory=/opt/stunet/ipset-rpcd
+ExecStart=/usr/bin/python /opt/stunet/ipset-rpcd/ipset-rpcd.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
