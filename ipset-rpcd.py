@@ -6,7 +6,7 @@ EXIT_OK = ["OK"]  # We need to always return an array
 
 
 def start(user, mac, ip, role, timeout):
-    print((
+    logging.info((
         'Updating entry for {user} ({mac}, {ip}, {role}) '
         'with timeout {timeout}').format(
         user=user, mac=mac, ip=ip, role=role, timeout=timeout))
@@ -21,7 +21,7 @@ def start(user, mac, ip, role, timeout):
 
 
 def stop(user, mac, ip, role, timeout):
-    print((
+    logging.info((
         'Removing entry for {user} ({mac}, {ip}, {role}) '
         'with timeout {timeout}').format(
         user=user, mac=mac, ip=ip, role=role, timeout=timeout))
