@@ -1,5 +1,6 @@
 from jsonrpclib.SimpleJSONRPCServer import SimpleJSONRPCServer
 import subprocess
+import logging
 
 EXIT_OK = ["OK"]  # We need to always return an array
 
@@ -31,8 +32,10 @@ def stop(user, mac, ip, role, timeout):
         ])
     return EXIT_OK if ret == 0 else ["Error"]
 
+logging.basicConfig(level=logging.DEBUG)
 
 if __name__ == '__main__':
+    logging.info("Starting JSON-RPC daemon...")
     server = SimpleJSONRPCServer(('localhost', 9090))
     server.register_function(start, 'Start')
     server.register_function(start, 'Update')
