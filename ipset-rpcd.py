@@ -13,8 +13,8 @@ def start(user, mac, ip, role, timeout):
         "sudo", "ipset", "add", "-exist",
         "role-{}".format(role),
         "{ip},{mac}".format(ip=ip, mac=mac),
-        "timeout", timeout,
-        "comment", user,
+        "timeout", str(timeout),
+        "comment", str(user),
         ])
     return EXIT_OK if ret == 0 else ["Error"]
 
