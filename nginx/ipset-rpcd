@@ -6,6 +6,9 @@ server {
   listen 9090 ssl;
   server_tokens off;
 
+  auth_basic "ipset-rpcd";
+  auth_basic_user_file /opt/stunet/ipset-rpcd/nginx/htpasswd;
+
   ssl on;
   ssl_certificate /etc/ssl/certs/ssl-cert-snakeoil.pem;
   ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;
