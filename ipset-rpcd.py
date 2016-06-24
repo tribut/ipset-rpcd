@@ -34,8 +34,16 @@ def stop(user, mac, ip, role, timeout):
 
 def update_user(action, user, mac, ip, role, timeout):
     args = locals().copy()
-    roles = [role.strip() for role in config.get('roles', role).split(',')]
-    services = [user.strip() for user in config.get('users', user).split(',')]
+
+    try:
+        roles = [role.strip() for role in config.get('roles', role).split(',')]
+    except (configparser.NoOptionError, configparser.NoSectionError), e:
+        roles = []
+
+    try:
+        services = [user.strip() for user in config.get('users', user).split(',')]
+    except (configparser.NoOptionError, configparser.NoSectionError), e:
+        services = []
 
     okay = True
     for ipset in roles + services:
