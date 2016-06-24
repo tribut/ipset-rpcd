@@ -1,0 +1,9 @@
+# This file is read by ipset-rpcd on startup
+# It maps roles and users to their respective ipsets
+
+[roles]
+normal = role-normal
+
+[users]
+foo = some-ipset, other-ipset
+bar = yet-another-ipset
