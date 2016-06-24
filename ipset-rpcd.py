@@ -10,30 +10,60 @@ EXIT_OK = ["OK"]  # We need to always return an array
 
 def start(user, mac, ip, role, timeout):
     logging.info((
-        'Updating entry for {user} ({mac}, {ip}, {role}) '
+        'Updating entries for {user} ({mac}, {ip}, {role}) '
         'with timeout {timeout}').format(
         user=user, mac=mac, ip=ip, role=role, timeout=timeout))
-    ret = subprocess.call([
-        "sudo", "ipset", "add", "-exist",
-        "role-{}".format(role),
-        "{ip},{mac}".format(ip=ip, mac=mac),
-        "timeout", str(timeout),
-        "comment", str(user),
-        ])
-    return EXIT_OK if ret == 0 else ["Error"]
+
+    action = 'add'
+    okay = update_user(**locals())
+
+    return EXIT_OK if okay else ["Error"]
 
 
 def stop(user, mac, ip, role, timeout):
     logging.info((
-        'Removing entry for {user} ({mac}, {ip}, {role}) '
+        'Removing entries for {user} ({mac}, {ip}, {role}) '
         ).format(
-        user=user, mac=mac, ip=ip, role=role, timeout=timeout))
-    ret = subprocess.call([
-        "sudo", "ipset", "del", "-exist",
-        "role-{}".format(role),
-        "{ip},{mac}".format(ip=ip, mac=mac),
-        ])
-    return EXIT_OK if ret == 0 else ["Error"]
+        user=user, mac=mac, ip=ip, role=role))
+
+    action = 'remove'
+    okay = update_user(**locals())
+
+    return EXIT_OK if okay else ["Error"]
+
+
+def update_user(action, user, mac, ip, role, timeout):
+    args = locals().copy()
+    roles = [role.strip() for role in config.get('roles', role).split(',')]
+    services = [user.strip() for user in config.get('users', user).split(',')]
+
+    okay = True
+    for ipset in roles + services:
+        args.update({'ipset': ipset})
+        if not update_ipset(**args):
+            okay = False
+    return okay
+
+
+def update_ipset(ipset, action, user, mac, ip, role, timeout):
+    if action not in ['add', 'remove']:
+        logging.error('Unknown action {}'.format(action))
+        return False
+
+    args = [
+        "sudo", "ipset",
+        str(action), "-exist", str(ipset),
+        "{ip},{mac}".format(ip=ip, mac=mac)
+        ]
+
+    if action == 'add':
+        args = args + [
+            "timeout", str(timeout),
+            "comment", str(user)
+            ]
+
+    ret = subprocess.call(args)
+    return ret == 0
 
 
 if __name__ == '__main__':
