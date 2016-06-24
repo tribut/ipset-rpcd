@@ -51,7 +51,7 @@ def update_ipset(ipset, action, user, mac, ip, role, timeout):
         return False
 
     logging.debug((
-        'User {user}: {action} to/from ipset {ipset}'.format(
+        'User {user}: {action} to/from ipset {ipset}').format(
         user=user, action=action, ipset=ipset))
 
 
