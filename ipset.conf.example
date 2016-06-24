@@ -5,5 +5,5 @@
 normal = role-normal
 
 [users]
-foo = some-ipset, other-ipset
-bar = yet-another-ipset
+foo = service-http, service-something
+bar = service-yet-another-thing
