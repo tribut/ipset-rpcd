@@ -51,7 +51,7 @@ def update_ipset(ipset, action, user, mac, ip, role, timeout):
         return False
 
     args = [
-        "sudo", "ipset",
+        "sudo", "-n", "ipset",
         str(action), "-exist", str(ipset),
         "{ip},{mac}".format(ip=ip, mac=mac)
         ]
