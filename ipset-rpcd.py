@@ -50,6 +50,11 @@ def update_ipset(ipset, action, user, mac, ip, role, timeout):
         logging.error('Unknown action {}'.format(action))
         return False
 
+    logging.debug((
+        'User {user}: {action} to/from ipset {ipset}'.format(
+        user=user, action=action, ipset=ipset))
+
+
     args = [
         "sudo", "-n", "ipset",
         str(action), "-exist", str(ipset),
