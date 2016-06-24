@@ -1,7 +1,9 @@
 from jsonrpclib.SimpleJSONRPCServer import SimpleJSONRPCServer
+import six
 import subprocess
 import logging
 import argparse
+from six.moves import configparser
 
 EXIT_OK = ["OK"]  # We need to always return an array
 
@@ -43,10 +45,17 @@ if __name__ == '__main__':
         description='JSON-RPC daemon',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--bind', default='127.0.0.1',
-                        help='set the ip address to bind to')
+                        help='the ip address to bind to')
     parser.add_argument('--port', type=int, default='9090',
-                        help='set the port to listen on')
+                        help='the port to listen on')
+    parser.add_argument('--config', default='ipset.conf',
+                        help='config file to read ipset mapping from')
     args = parser.parse_args()
+
+    # Init config file
+    config = configparser.ConfigParser()
+    if not config.read(args.config):
+        logging.warn("No config file was loaded")
 
     # Start server
     logging.info("Starting JSON-RPC daemon at {bind}:{port}...".format(
