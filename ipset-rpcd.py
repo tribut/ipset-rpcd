@@ -63,7 +63,6 @@ def update_ipset(ipset, action, user, mac, ip, role, timeout):
         'User {user}: {action} ipset {ipset}').format(
         user=user, action=action, ipset=ipset))
 
-
     args = [
         "sudo", "-n", "ipset",
         str(action), "-exist", str(ipset),
