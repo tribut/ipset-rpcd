@@ -6,6 +6,7 @@ import argparse
 from six.moves import configparser
 
 EXIT_OK = ["OK"]  # We need to always return an array
+EXIT_ERROR = ["Error"]
 
 
 def start(user, mac, ip, role, timeout):
@@ -17,7 +18,7 @@ def start(user, mac, ip, role, timeout):
     action = 'add'
     okay = update_user(**locals())
 
-    return EXIT_OK if okay else ["Error"]
+    return EXIT_OK if okay else EXIT_ERROR
 
 
 def stop(user, mac, ip, role, timeout):
@@ -29,7 +30,7 @@ def stop(user, mac, ip, role, timeout):
     action = 'remove'
     okay = update_user(**locals())
 
-    return EXIT_OK if okay else ["Error"]
+    return EXIT_OK if okay else EXIT_ERROR
 
 
 def update_user(action, user, mac, ip, role, timeout):
