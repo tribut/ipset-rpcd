@@ -59,14 +59,19 @@ def update_ipset(ipset, action, user, mac, ip, role, timeout):
         logging.error('Unknown action {}'.format(action))
         return False
 
+    try:
+        items = config.get('ipsets', ipset)
+    except (configparser.NoOptionError, configparser.NoSectionError), e:
+        items = "{ip}"
+
     logging.debug((
-        'User {user}: {action} ipset {ipset}').format(
-        user=user, action=action, ipset=ipset))
+        'User {user}: {action} ipset {ipset} with items {items}').format(
+        user=user, action=action, ipset=ipset, items=items))
 
     args = [
         "sudo", "-n", "ipset",
         str(action), "-exist", str(ipset),
-        "{ip},{mac}".format(ip=ip, mac=mac)
+        items.format(ip=ip, mac=mac)
         ]
 
     if action == 'add':
