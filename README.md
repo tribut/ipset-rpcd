@@ -42,6 +42,21 @@ role-local = {ip},{mac}
 
 Note that **ipset-rpcd** sets the `comment` field of the IP set entries to the username of the respective PacketFence user, so make sure to create all ipset with the `comment` keyword (see firewall integration below).
 
+## Parameters
+
+**ipset-rpcd** supports the following commandline parameters
+
+~~~
+usage: ipset-rpcd.py [-h] [--bind BIND] [--port PORT] [--config CONFIG]
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --bind BIND      the ip address to bind to (default: 127.0.0.1)
+  --port PORT      the port to listen on (default: 9090)
+  --config CONFIG  config file to read ipset mapping from (default:
+                   ipset.conf)
+~~~
+
 ## Installation
 
 ### Overview
