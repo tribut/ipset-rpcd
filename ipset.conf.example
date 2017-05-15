@@ -1,8 +1,13 @@
 # This file is read by ipset-rpcd on startup
 # It maps roles and users to their respective ipsets
 
+[ipsets]
+role-normal = {ip},{mac}
+
 [roles]
 normal = role-normal
+gaming = role-normal
+admin = role-admin, role-normal
 
 [users]
 foo = service-http, service-something
