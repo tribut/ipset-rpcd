@@ -20,12 +20,12 @@ admin = role-staff, role-admin
 
 ### users
 
-Assign IP sets to individual PacketFence roles. Keys are usernames, valus are the name of an IP set or multiple IP sets, separated by commas. So if you want the user `johndoe` to be added to the
+Assign IP sets to individual PacketFence users. Keys are usernames, values are the name of an IP set or multiple IP sets, separated by commas. So if you want the user `johndoe` to be added to the
 IP sets `service-http` and `service-proxy` you would use:
 
 ~~~
 [users]
-johndoe = service-http, service-something
+johndoe = service-http, service-proxy
 ~~~
 
 ### ipsets
