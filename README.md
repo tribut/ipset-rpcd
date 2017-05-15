@@ -180,4 +180,4 @@ SSH(ACCEPT)  user:+role-admin mgnt
 
 ## Credits
 
-**ipset-rpcd** was created for [StuNet Freiberg](https://www.stunet.tu-freiberg.de/) by [Felix Eckhofer](felix@eckhofer.com). Please get in touch with any feedback!
+**ipset-rpcd** was created for [StuNet Freiberg](https://www.stunet.tu-freiberg.de/) by [Felix Eckhofer](mailto:felix@eckhofer.com). Please get in touch with any feedback!
