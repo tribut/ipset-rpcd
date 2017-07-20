@@ -67,7 +67,7 @@ class Ipset_rpcd:
         newconfig = configparser.ConfigParser()
         logging.debug("Reading config {}".format(self.args.config))
         if not newconfig.read(self.args.config):
-            logging.error("Could not load config! - Not doing anything")
+            logging.error("Could not load config!")
         else:
             self.config = newconfig
 
