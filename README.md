@@ -6,7 +6,9 @@ This makes firewall rules more dynamic and easier to read, much like you would e
 
 ## Configuration
 
-The behavior of **ipset-rpcd** is controlled by an ini-style text file. It maps PacketFence users and roles to one or many IP sets. It can contain the following sections:
+The behavior of **ipset-rpcd** is controlled by an ini-style text file, which is read on startup and on SIGUSR1.
+
+It maps PacketFence users and roles to one or many IP sets. It can contain the following sections:
 
 ### roles
 
@@ -39,6 +41,8 @@ So if the IP set `role-local` was of type `bitmap:ip,mac` you would use
 [ipsets]
 role-local = {ip},{mac}
 ~~~
+
+*IP sets used in the `[roles]` or `[users]` sections do not have to be specified here when they are IP based only.*
 
 Note that **ipset-rpcd** sets the `comment` field of the IP set entries to the username of the respective PacketFence user, so make sure to create all ipset with the `comment` keyword (see firewall integration below).
 
@@ -126,6 +130,12 @@ You should now be able to reach your server locally:
 
 ~~~
 curl -d '{"jsonrpc":"2.0","method":"Start","params":{"user":"lzammit","mac":"00:11:22:33:44:55","ip":"1.2.3.4","role":"default","timeout":86400},"id":42}' http://localhost:9090
+~~~
+
+Let the server reload its config via
+
+~~~
+systemctl reload ipset-rpcd.service
 ~~~
 
 ### 6. Set up nginx

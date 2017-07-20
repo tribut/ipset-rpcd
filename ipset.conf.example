@@ -1,4 +1,4 @@
-# This file is read by ipset-rpcd on startup
+# This file is read by ipset-rpcd on startup and on SIGUSR1
 # It maps roles and users to their respective ipsets
 
 [ipsets]
