@@ -64,9 +64,12 @@ class Ipset_rpcd:
         self.server.register_function(stop, "Stop")
 
     def _read_config(self):
+        newconfig = configparser.ConfigParser()
         logging.debug("Reading config {}".format(self.args.config))
-        if not self.config.read(self.args.config):
-            logging.error("Could not load config!")
+        if not newconfig.read(self.args.config):
+            logging.error("Could not load config! - Not doing anything")
+        else:
+            self.config = newconfig
 
     def _start(user, mac, ip, role, timeout):
         logging.info((
