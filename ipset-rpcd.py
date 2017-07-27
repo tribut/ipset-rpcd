@@ -5,113 +5,138 @@ import logging
 import argparse
 from six.moves import configparser
 
-EXIT_OK = ["OK"]  # We need to always return an array
-EXIT_ERROR = ["Error"]
 
+class Ipset_rpcd:
+    """daemon which updates ipsets based on events it receives via JSON-RPC"""
 
-def start(user, mac, ip, role, timeout):
-    logging.info((
-        'Updating entries for {user} ({mac}, {ip}, {role}) '
-        'with timeout {timeout}').format(
-        user=user, mac=mac, ip=ip, role=role, timeout=timeout))
+    OK = ["OK"]  # We need to always return an array
+    ERROR = ["Error"]
 
-    action = 'add'
-    okay = update_user(**locals())
+    def __init__(self):
+        # Setup logging
+        logging.basicConfig(level=logging.DEBUG)
 
-    return EXIT_OK if okay else EXIT_ERROR
+        # Parse commandline
+        self.parser = argparse.ArgumentParser(
+            description="IPset JSON-RPC daemon",
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        self.parser.add_argument("--bind", default="127.0.0.1",
+                                 help="the ip address to bind to")
+        self.parser.add_argument("--port", type=int, default="9090",
+                                 help="the port to listen on")
+        self.parser.add_argument("--config", default="ipset.conf",
+                                 help="config file to read ipset mapping from")
+        self.args = self.parser.parse_args()
 
+        # Init config
+        self.config = configparser.ConfigParser()
+        if not self.config.read(self.args.config):
+            logging.warn("No config file was loaded")
 
-def stop(user, mac, ip, role, timeout):
-    logging.info((
-        'Removing entries for {user} ({mac}, {ip}, {role}) '
-        ).format(
-        user=user, mac=mac, ip=ip, role=role))
+        # Init server
+        self.server = SimpleJSONRPCServer((self.args.bind, self.args.port))
 
-    action = 'remove'
-    okay = update_user(**locals())
+        # Register handlers
+        def start(*args, **kw):
+            self._start(*args, **kw)
 
-    return EXIT_OK if okay else EXIT_ERROR
+        def stop(*args, **kw):
+            self._stop(*args, **kw)
 
+        self.server.register_function(start, "Start")
+        self.server.register_function(start, "Update")
+        self.server.register_function(stop, "Stop")
 
-def update_user(action, user, mac, ip, role, timeout):
-    args = locals().copy()
+    def serve_forever(self):
+        logging.info(
+            "Starting ipset JSON-RPC daemon at {bind}:{port}...".format(
+                bind=self.args.bind,
+                port=self.args.port,
+                )
+            )
+        try:
+            self.server.serve_forever()
+        except KeyboardInterrupt:
+            logging.info("Stopped")
 
-    try:
-        roles = [role.strip() for role in config.get('roles', role).split(',')]
-    except (configparser.NoOptionError, configparser.NoSectionError), e:
-        roles = []
+    def _start(self, user, mac, ip, role, timeout):
+        logging.info((
+            'Updating entries for {user} ({mac}, {ip}, {role}) '
+            'with timeout {timeout}').format(
+            user=user, mac=mac, ip=ip, role=role, timeout=timeout))
 
-    try:
-        services = [user.strip() for user in config.get('users', user).split(',')]
-    except (configparser.NoOptionError, configparser.NoSectionError), e:
-        services = []
+        action = 'add'
+        okay = self._update_user(**locals())
 
-    okay = True
-    for ipset in roles + services:
-        args.update({'ipset': ipset})
-        if not update_ipset(**args):
-            okay = False
-    return okay
+        return self.OK if okay else self.ERROR
 
+    def _stop(self, user, mac, ip, role, timeout):
+        logging.info((
+            'Removing entries for {user} ({mac}, {ip}, {role}) '
+            ).format(
+            user=user, mac=mac, ip=ip, role=role))
 
-def update_ipset(ipset, action, user, mac, ip, role, timeout):
-    if action not in ['add', 'remove']:
-        logging.error('Unknown action {}'.format(action))
-        return False
+        action = 'remove'
+        okay = self._update_user(**locals())
 
-    try:
-        items = config.get('ipsets', ipset)
-    except (configparser.NoOptionError, configparser.NoSectionError), e:
-        items = "{ip}"
+        return self.OK if okay else self.ERROR
 
-    logging.debug((
-        'User {user}: {action} ipset {ipset} with items {items}').format(
-        user=user, action=action, ipset=ipset, items=items))
+    def _update_user(self, action, user, mac, ip, role, timeout):
+        args = locals().copy()
 
-    args = [
-        "sudo", "-n", "ipset",
-        str(action), "-exist", str(ipset),
-        items.format(ip=ip, mac=mac)
-        ]
+        try:
+            roles = [
+                role.strip()
+                for role in self.config.get('roles', role).split(',')
+                ]
+        except (configparser.NoOptionError, configparser.NoSectionError), e:
+            roles = []
 
-    if action == 'add':
-        args = args + [
-            "timeout", str(timeout),
-            "comment", str(user)
+        try:
+            services = [
+                user.strip()
+                for user in self.config.get('users', user).split(',')
+                ]
+        except (configparser.NoOptionError, configparser.NoSectionError), e:
+            services = []
+
+        okay = True
+        for ipset in roles + services:
+            args.update({'ipset': ipset})
+            if not self._update_ipset(**args):
+                okay = False
+        return okay
+
+    def _update_ipset(self, ipset, action, user, mac, ip, role, timeout):
+        if action not in ['add', 'remove']:
+            logging.error('Unknown action {}'.format(action))
+            return False
+
+        try:
+            items = self.config.get('ipsets', ipset)
+        except (configparser.NoOptionError, configparser.NoSectionError), e:
+            items = "{ip}"
+
+        logging.debug((
+            'User {user}: {action} ipset {ipset} with items {items}').format(
+            user=user, action=action, ipset=ipset, items=items))
+
+        args = [
+            "sudo", "-n", "ipset",
+            str(action), "-exist", str(ipset),
+            items.format(ip=ip, mac=mac)
             ]
 
-    ret = subprocess.call(args)
-    return ret == 0
+        if action == 'add':
+            args = args + [
+                "timeout", str(timeout),
+                "comment", str(user)
+                ]
+
+        ret = subprocess.call(args)
+        return ret == 0
 
 
 if __name__ == '__main__':
-    # Setup logging
-    logging.basicConfig(level=logging.DEBUG)
-
-    # Parse commandline
-    parser = argparse.ArgumentParser(
-        description='JSON-RPC daemon',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--bind', default='127.0.0.1',
-                        help='the ip address to bind to')
-    parser.add_argument('--port', type=int, default='9090',
-                        help='the port to listen on')
-    parser.add_argument('--config', default='ipset.conf',
-                        help='config file to read ipset mapping from')
-    args = parser.parse_args()
-
-    # Init config file
-    config = configparser.ConfigParser()
-    if not config.read(args.config):
-        logging.warn("No config file was loaded")
-
-    # Start server
-    logging.info("Starting JSON-RPC daemon at {bind}:{port}...".format(
-        bind=args.bind,
-        port=args.port,
-    ))
-    server = SimpleJSONRPCServer((args.bind, args.port))
-    server.register_function(start, 'Start')
-    server.register_function(start, 'Update')
-    server.register_function(stop, 'Stop')
-    server.serve_forever()
+    ipset_rpcd = Ipset_rpcd()
+    ipset_rpcd.serve_forever()
