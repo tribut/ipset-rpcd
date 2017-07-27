@@ -4,6 +4,7 @@ import subprocess
 import logging
 import argparse
 from six.moves import configparser
+import signal
 
 
 class Ipset_rpcd:
@@ -19,6 +20,7 @@ class Ipset_rpcd:
         # Parse commandline
         self.parser = argparse.ArgumentParser(
             description="IPset JSON-RPC daemon",
+            epilog="Config file is reloaded on SIGUSR1",
             formatter_class=argparse.ArgumentDefaultsHelpFormatter)
         self.parser.add_argument("--bind", default="127.0.0.1",
                                  help="the ip address to bind to")
@@ -30,8 +32,12 @@ class Ipset_rpcd:
 
         # Init config
         self.config = configparser.ConfigParser()
-        if not self.config.read(self.args.config):
-            logging.warn("No config file was loaded")
+        self._read_config()
+
+        # Setup config reloading
+        def reload(signal, frame):
+            self._read_config()
+        signal.signal(signal.SIGUSR1, reload)
 
         # Init server
         self.server = SimpleJSONRPCServer((self.args.bind, self.args.port))
@@ -58,6 +64,15 @@ class Ipset_rpcd:
             self.server.serve_forever()
         except KeyboardInterrupt:
             logging.info("Stopped")
+
+    def _read_config(self):
+        # create new config object, so that old entries are removed
+        newconfig = configparser.ConfigParser()
+        logging.debug("Reading config {}".format(self.args.config))
+        if not newconfig.read(self.args.config):
+            logging.error("Could not load config!")
+        else:
+            self.config = newconfig
 
     def _start(self, user, mac, ip, role, timeout):
         logging.info((
