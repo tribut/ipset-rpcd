@@ -15,7 +15,7 @@ class Ipset_rpcd:
 
     def __init__(self):
         # Setup logging
-        logging.basicConfig(level=logging.DEBUG)
+        self._setupLogging()
 
         # Parse commandline
         self.parser = argparse.ArgumentParser(
@@ -46,7 +46,7 @@ class Ipset_rpcd:
         self._registerHandlers()
 
     def serve_forever(self):
-        logging.info(
+        self.log.info(
             "Starting ipset JSON-RPC daemon at {bind}:{port}...".format(
                 bind=self.args.bind,
                 port=self.args.port,
@@ -55,7 +55,14 @@ class Ipset_rpcd:
         try:
             self.server.serve_forever()
         except KeyboardInterrupt:
-            logging.info("Stopped")
+            self.log.info("Stopped")
+
+    def _setupLogging(self):
+        formatter = logging.Formatter("%(name)s\t%(levelname)s\t%(message)s")
+        handler = logging.StreamHandler()
+        handler.setFormatter(formatter)
+        self.log = logging.getLogger("ipset-rpcd")
+        self.log.addHandler(handler)
 
     def _registerHandlers(self):
         def start(*args, **kw):
@@ -71,15 +78,15 @@ class Ipset_rpcd:
     def _read_config(self):
         # create new config object, so that old entries are removed
         newconfig = configparser.ConfigParser()
-        logging.debug("Reading config {}".format(self.args.config))
+        self.log.debug("Reading config {}".format(self.args.config))
         if not newconfig.read(self.args.config):
-            logging.error("Could not load config!")
+            self.log.error("Could not load config!")
         else:
             self.config = newconfig
 
     def _start(self, user, mac, ip, role, timeout):
-        logging.info((
-            "Updating entries for {user} ({mac}, {ip}, {role}) "
+        self.log.info((
+            "Updating entries for {user} ({mac}, {ip}, {role})"
             "with timeout {timeout}").format(
             user=user, mac=mac, ip=ip, role=role, timeout=timeout))
 
@@ -89,8 +96,8 @@ class Ipset_rpcd:
         return self.OK if okay else self.ERROR
 
     def _stop(self, user, mac, ip, role, timeout):
-        logging.info((
-            "Removing entries for {user} ({mac}, {ip}, {role}) "
+        self.log.info((
+            "Removing entries for {user} ({mac}, {ip}, {role})"
             ).format(
             user=user, mac=mac, ip=ip, role=role))
 
@@ -129,7 +136,7 @@ class Ipset_rpcd:
 
     def _update_ipset(self, ipset, action, user, mac, ip, role, timeout):
         if action not in ["add", "remove"]:
-            logging.error("Unknown action {}".format(action))
+            self.log.error("Unknown action {}".format(action))
             return False
 
         # get type of ipset
@@ -138,7 +145,7 @@ class Ipset_rpcd:
         except (configparser.NoOptionError, configparser.NoSectionError) as e:
             items = "{ip}"
 
-        logging.debug((
+        self.log.debug((
             "User {user}: {action} ipset {ipset} with items {items}").format(
             user=user, action=action, ipset=ipset, items=items))
 
