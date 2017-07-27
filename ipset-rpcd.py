@@ -102,6 +102,7 @@ class Ipset_rpcd:
     def _update_user(self, action, user, mac, ip, role, timeout):
         args = locals().copy()
 
+        # get ipsets the users role is in
         try:
             roles = [
                 role.strip()
@@ -110,6 +111,7 @@ class Ipset_rpcd:
         except (configparser.NoOptionError, configparser.NoSectionError) as e:
             roles = []
 
+        # get ipsets the user itself is in
         try:
             services = [
                 user.strip()
@@ -130,6 +132,7 @@ class Ipset_rpcd:
             logging.error("Unknown action {}".format(action))
             return False
 
+        # get type of ipset
         try:
             items = self.config.get("ipsets", ipset)
         except (configparser.NoOptionError, configparser.NoSectionError) as e:
