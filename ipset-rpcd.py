@@ -63,6 +63,7 @@ class Ipset_rpcd:
         handler.setFormatter(formatter)
         self.log = logging.getLogger("ipset-rpcd")
         self.log.addHandler(handler)
+        self.log.setLevel(logging.DEBUG)
 
     def _registerHandlers(self):
         def start(*args, **kw):
@@ -87,7 +88,7 @@ class Ipset_rpcd:
     def _start(self, user, mac, ip, role, timeout):
         self.log.info((
             "Updating entries for {user} ({mac}, {ip}, {role})"
-            "with timeout {timeout}").format(
+            " with timeout {timeout}").format(
             user=user, mac=mac, ip=ip, role=role, timeout=timeout))
 
         okay = self._update_user("add", user, mac, ip, role, timeout)
