@@ -61,22 +61,22 @@ class Ipset_rpcd:
 
     def _start(self, user, mac, ip, role, timeout):
         logging.info((
-            'Updating entries for {user} ({mac}, {ip}, {role}) '
-            'with timeout {timeout}').format(
+            "Updating entries for {user} ({mac}, {ip}, {role}) "
+            "with timeout {timeout}").format(
             user=user, mac=mac, ip=ip, role=role, timeout=timeout))
 
-        action = 'add'
+        action = "add"
         okay = self._update_user(**locals())
 
         return self.OK if okay else self.ERROR
 
     def _stop(self, user, mac, ip, role, timeout):
         logging.info((
-            'Removing entries for {user} ({mac}, {ip}, {role}) '
+            "Removing entries for {user} ({mac}, {ip}, {role}) "
             ).format(
             user=user, mac=mac, ip=ip, role=role))
 
-        action = 'remove'
+        action = "remove"
         okay = self._update_user(**locals())
 
         return self.OK if okay else self.ERROR
@@ -87,7 +87,7 @@ class Ipset_rpcd:
         try:
             roles = [
                 role.strip()
-                for role in self.config.get('roles', role).split(',')
+                for role in self.config.get("roles", role).split(",")
                 ]
         except (configparser.NoOptionError, configparser.NoSectionError) as e:
             roles = []
@@ -95,30 +95,30 @@ class Ipset_rpcd:
         try:
             services = [
                 user.strip()
-                for user in self.config.get('users', user).split(',')
+                for user in self.config.get("users", user).split(",")
                 ]
         except (configparser.NoOptionError, configparser.NoSectionError) as e:
             services = []
 
         okay = True
         for ipset in roles + services:
-            args.update({'ipset': ipset})
+            args.update({"ipset": ipset})
             if not self._update_ipset(**args):
                 okay = False
         return okay
 
     def _update_ipset(self, ipset, action, user, mac, ip, role, timeout):
-        if action not in ['add', 'remove']:
-            logging.error('Unknown action {}'.format(action))
+        if action not in ["add", "remove"]:
+            logging.error("Unknown action {}".format(action))
             return False
 
         try:
-            items = self.config.get('ipsets', ipset)
+            items = self.config.get("ipsets", ipset)
         except (configparser.NoOptionError, configparser.NoSectionError) as e:
             items = "{ip}"
 
         logging.debug((
-            'User {user}: {action} ipset {ipset} with items {items}').format(
+            "User {user}: {action} ipset {ipset} with items {items}").format(
             user=user, action=action, ipset=ipset, items=items))
 
         args = [
@@ -127,7 +127,7 @@ class Ipset_rpcd:
             items.format(ip=ip, mac=mac)
             ]
 
-        if action == 'add':
+        if action == "add":
             args = args + [
                 "timeout", str(timeout),
                 "comment", str(user)
@@ -137,6 +137,6 @@ class Ipset_rpcd:
         return ret == 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ipset_rpcd = Ipset_rpcd()
     ipset_rpcd.serve_forever()
