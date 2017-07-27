@@ -90,8 +90,7 @@ class Ipset_rpcd:
             "with timeout {timeout}").format(
             user=user, mac=mac, ip=ip, role=role, timeout=timeout))
 
-        action = "add"
-        okay = self._update_user(**locals())
+        okay = self._update_user("add", user, mac, ip, role, timeout)
 
         return self.OK if okay else self.ERROR
 
@@ -101,14 +100,11 @@ class Ipset_rpcd:
             ).format(
             user=user, mac=mac, ip=ip, role=role))
 
-        action = "remove"
-        okay = self._update_user(**locals())
+        okay = self._update_user("remove", user, mac, ip, role, timeout)
 
         return self.OK if okay else self.ERROR
 
     def _update_user(self, action, user, mac, ip, role, timeout):
-        args = locals().copy()
-
         # get ipsets the users role is in
         try:
             roles = [
@@ -129,8 +125,8 @@ class Ipset_rpcd:
 
         okay = True
         for ipset in roles + services:
-            args.update({"ipset": ipset})
-            if not self._update_ipset(**args):
+            if not self._update_ipset(
+                    ipset, action, user, mac, ip, role, timeout):
                 okay = False
         return okay
 
