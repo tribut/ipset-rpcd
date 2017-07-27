@@ -43,15 +43,7 @@ class Ipset_rpcd:
         self.server = SimpleJSONRPCServer((self.args.bind, self.args.port))
 
         # Register handlers
-        def start(*args, **kw):
-            self._start(*args, **kw)
-
-        def stop(*args, **kw):
-            self._stop(*args, **kw)
-
-        self.server.register_function(start, "Start")
-        self.server.register_function(start, "Update")
-        self.server.register_function(stop, "Stop")
+        self._registerHandlers()
 
     def serve_forever(self):
         logging.info(
@@ -64,6 +56,17 @@ class Ipset_rpcd:
             self.server.serve_forever()
         except KeyboardInterrupt:
             logging.info("Stopped")
+
+    def _registerHandlers(self):
+        def start(*args, **kw):
+            self._start(*args, **kw)
+
+        def stop(*args, **kw):
+            self._stop(*args, **kw)
+
+        self.server.register_function(start, "Start")
+        self.server.register_function(start, "Update")
+        self.server.register_function(stop, "Stop")
 
     def _read_config(self):
         # create new config object, so that old entries are removed
