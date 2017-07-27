@@ -89,7 +89,7 @@ class Ipset_rpcd:
                 role.strip()
                 for role in self.config.get('roles', role).split(',')
                 ]
-        except (configparser.NoOptionError, configparser.NoSectionError), e:
+        except (configparser.NoOptionError, configparser.NoSectionError) as e:
             roles = []
 
         try:
@@ -97,7 +97,7 @@ class Ipset_rpcd:
                 user.strip()
                 for user in self.config.get('users', user).split(',')
                 ]
-        except (configparser.NoOptionError, configparser.NoSectionError), e:
+        except (configparser.NoOptionError, configparser.NoSectionError) as e:
             services = []
 
         okay = True
@@ -114,7 +114,7 @@ class Ipset_rpcd:
 
         try:
             items = self.config.get('ipsets', ipset)
-        except (configparser.NoOptionError, configparser.NoSectionError), e:
+        except (configparser.NoOptionError, configparser.NoSectionError) as e:
             items = "{ip}"
 
         logging.debug((
