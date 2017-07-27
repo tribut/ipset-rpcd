@@ -109,8 +109,8 @@ class Ipset_rpcd:
         # get ipsets the users role is in
         try:
             roles = [
-                role.strip()
-                for role in self.config.get("roles", role).split(",")
+                roleipset.strip()
+                for roleipset in self.config.get("roles", role).split(",")
                 ]
         except (configparser.NoOptionError, configparser.NoSectionError) as e:
             roles = []
@@ -118,8 +118,8 @@ class Ipset_rpcd:
         # get ipsets the user itself is in
         try:
             services = [
-                user.strip()
-                for user in self.config.get("users", user).split(",")
+                useripset.strip()
+                for useripset in self.config.get("users", user).split(",")
                 ]
         except (configparser.NoOptionError, configparser.NoSectionError) as e:
             services = []
