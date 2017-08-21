@@ -6,13 +6,13 @@ This makes firewall rules more dynamic and easier to read, much like you would e
 
 ## Table of Contents
 
-  1. [Installation](#installation)
-  1. [Parameters](#parameters)
+  1. [Install guide](#install-guide)
+  1. [Command-line arguments](#command-line-arguments)
   1. [Configuration](#configuration)
   1. [Firewall Integration](#firewall-integration)
   1. [Credits](#credits)
 
-## Installation
+## Install guide
 
 ### Overview
 
@@ -35,20 +35,21 @@ git clone https://github.com/tribut/ipset-rpcd.git
 
 ### 2. Modify the configuration
 
-You can start by using the example as a template:
+You can start by using the example as a template. See below for a [comprehensive guide on the config file syntax](#configuration).
 
 ~~~
 cp ipset.conf.example ipset.conf
 vim ipset.conf
 ~~~
 
-### 3. Add the system user
+### 3. Add the systemd service and sudo rules
 
 ~~~
 adduser --system ipset-rpcd
+install -m 0640 init/ipset-rpcd.service /etc/systemd/system
+systemctl daemon-reload
+systemctl enable ipset-rpcd.service
 ~~~
-
-### 4. Install the sudo rules
 
 The sudo rules we recommend allow the daemon to add/remove entries to/from all IP sets that start with `role-` or `service-`. This is mainly a security precaution.
 
@@ -56,54 +57,26 @@ The sudo rules we recommend allow the daemon to add/remove entries to/from all I
 install -m 0440 sudoers.d/ipset-rpcd /etc/sudoers.d
 ~~~
 
-Make sure your `sudoers` file contains the line `#includedir /etc/sudoers.d` for this to work or simply paste the contents of `sudoers.d/ipset-rpcd`.
+Make sure your `sudoers` file contains the line `#includedir /etc/sudoers.d` for this to work or paste the contents of `sudoers.d/ipset-rpcd` alternatively.
 
-### 5. Install the systemd service
-
-~~~
-install -m 0640 init/ipset-rpcd.service /etc/systemd/system
-systemctl daemon-reload
-~~~
-
-To make sure the service started on boot-up, run
-
-~~~
-systemctl enable ipset-rpcd.service
-~~~
-
-You can now manually start the service using
+You can now manually start the service and should be able to test your server locally:
 
 ~~~
 systemctl start ipset-rpcd.service
-~~~
-
-You should now be able to reach your server locally:
-
-~~~
 curl -d '{"jsonrpc":"2.0","method":"Start","params":{"user":"lzammit","mac":"00:11:22:33:44:55","ip":"1.2.3.4","role":"default","timeout":86400},"id":42}' http://localhost:9090
 ~~~
 
-Let the server reload its config via
-
-~~~
-systemctl reload ipset-rpcd.service
-~~~
-
-### 6. Set up nginx
+### 4. Set up nginx
 
 Install nginx and its config file
 
 ~~~
 apt install nginx-light apache2-utils
 install -m 0644 nginx/ipset-rpcd /etc/nginx/sites-available
-~~~
-
-Make sure to replace the certificate
-~~~
 vim /etc/nginx/sites-available/ipset-rpcd
 ~~~
 
-And add a user for HTTP Basic auth
+Make sure to replace the certificate, then add a user for HTTP Basic auth
 
 ~~~
 htpasswd -m -c nginx/htpasswd ipset-updater
@@ -116,9 +89,9 @@ ln -s ../sites-available/ipset-rpcd /etc/nginx/sites-enabled
 systemctl restart nginx
 ~~~
 
-## Parameters
+## Command-line arguments
 
-**ipset-rpcd** supports the following commandline parameters
+**ipset-rpcd** supports the following command-line arguments:
 
 ~~~
 usage: ipset-rpcd.py [-h] [--bind BIND] [--port PORT] [--config CONFIG]
@@ -133,7 +106,7 @@ optional arguments:
 
 ## Configuration
 
-The behavior of **ipset-rpcd** is controlled by an ini-style text file, which is read on startup and on SIGUSR1.
+The behavior of **ipset-rpcd** is controlled by an ini-style text file, which is read on startup and on SIGUSR1 (`systemctl reload ipset-rpcd.service`).
 
 It maps PacketFence users and roles to one or many IP sets. It can contain the following sections:
 
@@ -159,7 +132,9 @@ johndoe = service-http, service-proxy
 
 ### ipsets
 
-By default, all IP sets are IP based only. In some circumstances, you may want to match on MAC or MAC/IP. Keys are names of IP sets, values are the `*-ENTRY` arguments to `sudo ipset add` and `sudo ipset del` respectively. The following placeholders can be used:
+By default, *all IP sets are IP-based*. In some circumstances, you may want to match on MAC or MAC/IP.
+
+Keys are names of IP sets, values are the `*-ENTRY` arguments to `sudo ipset add` and `sudo ipset del` respectively. The following placeholders can be used:
   * `{mac}`
   * `{ip}`
 
@@ -168,8 +143,6 @@ So if the IP set `role-local` was of type `bitmap:ip,mac` you would use
 [ipsets]
 role-local = {ip},{mac}
 ~~~
-
-*IP sets used in the `[roles]` or `[users]` sections do not have to be specified here when they are IP based only.*
 
 Note that **ipset-rpcd** sets the `comment` field of the IP set entries to the username of the respective PacketFence user, so make sure to create all ipset with the `comment` keyword (see firewall integration below).
 
