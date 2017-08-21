@@ -89,6 +89,10 @@ ln -s ../sites-available/ipset-rpcd /etc/nginx/sites-enabled
 systemctl restart nginx
 ~~~
 
+### 5. Enable SSO in Packetfence
+
+A short [guide on how to set up Packetfence SSO with ipset-rpcd](https://packetfence.org/doc/PacketFence_JSON-RPC_Quick_Install_Guide.html) is available on the Packetfence website.
+
 ## Command-line arguments
 
 **ipset-rpcd** supports the following command-line arguments:
