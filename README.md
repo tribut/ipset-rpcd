@@ -2,7 +2,7 @@
 
 [<img alt="JSONRPC-Settings in PacketFence" src="https://github.com/inverse-inc/packetfence/blob/8e46dba6b23606c35c1e04f4ecc23aceb1e66d61/docs/images/doc-jsonrpc-cfg_SSO_pf.png" width="400" align="right">][PacketFence Guide]
 
-**ipset-rpcd** implements a simple JSON-RPC server that can be used together with [PacketFence] and a Linux firewall. It creates IP sets that you can use to filter traffic based on a username or a user's group ("role") instead of IP addresses.
+**ipset-rpcd** implements a simple JSON-RPC server that can be used together with [PacketFence] and a Linux firewall. It creates IP sets that you can use to **filter traffic based on a username or a user's group** ("role") instead of IP addresses.
 
 This makes firewall rules more dynamic and easier to read, much like you would expect from a *Next-Generation Firewall* appliance.
 
