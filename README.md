@@ -1,6 +1,8 @@
 # ipset-rpcd
 
-**ipset-rpcd** implements a simple JSON-RPC server that can be used together with [PacketFence](https://www.packetfence.org) and a Linux firewall. It creates IP sets that you can use to filter traffic based on a username or a user's group ("role") instead of IP addresses.
+[<img alt="JSONRPC-Settings in PacketFence" src="https://github.com/inverse-inc/packetfence/blob/8e46dba6b23606c35c1e04f4ecc23aceb1e66d61/docs/images/doc-jsonrpc-cfg_SSO_pf.png" width="400" align="right">][PacketFence Guide]
+
+**ipset-rpcd** implements a simple JSON-RPC server that can be used together with [PacketFence] and a Linux firewall. It creates IP sets that you can use to filter traffic based on a username or a user's group ("role") instead of IP addresses.
 
 This makes firewall rules more dynamic and easier to read, much like you would expect from a *Next-Generation Firewall* appliance.
 
@@ -89,9 +91,9 @@ ln -s ../sites-available/ipset-rpcd /etc/nginx/sites-enabled
 systemctl restart nginx
 ~~~
 
-### 5. Enable SSO in Packetfence
+### 5. Enable SSO in PacketFence
 
-A short [guide on how to set up Packetfence SSO with ipset-rpcd](https://packetfence.org/doc/PacketFence_JSON-RPC_Quick_Install_Guide.html) is available on the Packetfence website.
+A short [guide on how to set up PacketFence SSO with ipset-rpcd][PacketFence Guide] is available on the PacketFence website.
 
 ## Command-line arguments
 
@@ -176,3 +178,7 @@ SSH(ACCEPT)  user:+role-admin mgnt
 ## Credits
 
 **ipset-rpcd** was created for [StuNet Freiberg](https://www.stunet.tu-freiberg.de/) by [Felix Eckhofer](mailto:felix@eckhofer.com). Please get in touch with any feedback!
+
+
+[PacketFence]: https://www.packetfence.org
+[PacketFence Guide]: https://packetfence.org/doc/PacketFence_JSON-RPC_Quick_Install_Guide.html
