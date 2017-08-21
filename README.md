@@ -4,62 +4,13 @@
 
 This makes firewall rules more dynamic and easier to read, much like you would expect from a *Next-Generation Firewall* appliance.
 
-## Configuration
+## Table of Contents
 
-The behavior of **ipset-rpcd** is controlled by an ini-style text file, which is read on startup and on SIGUSR1.
-
-It maps PacketFence users and roles to one or many IP sets. It can contain the following sections:
-
-### roles
-
-Assign IP sets to PacketFence roles. Keys are the roles, values are the name of an IP set or multiple IP sets, separated by commas. So if you wanted members of roles `staff` and `admin` in an IP set named `role-staff`, but users with role `admin` should also be in the ipset `role-admin`, you would use:
-
-~~~
-[roles]
-staff = role-staff
-admin = role-staff, role-admin
-~~~
-
-### users
-
-Assign IP sets to individual PacketFence users. Keys are usernames, values are the name of an IP set or multiple IP sets, separated by commas. So if you want the user `johndoe` to be added to the
-IP sets `service-http` and `service-proxy` you would use:
-
-~~~
-[users]
-johndoe = service-http, service-proxy
-~~~
-
-### ipsets
-
-By default, all IP sets are IP based only. In some circumstances, you may want to match on MAC or MAC/IP. Keys are names of IP sets, values are the `*-ENTRY` arguments to `sudo ipset add` and `sudo ipset del` respectively. The following placeholders can be used:
-  * `{mac}`
-  * `{ip}`
-
-So if the IP set `role-local` was of type `bitmap:ip,mac` you would use
-~~~
-[ipsets]
-role-local = {ip},{mac}
-~~~
-
-*IP sets used in the `[roles]` or `[users]` sections do not have to be specified here when they are IP based only.*
-
-Note that **ipset-rpcd** sets the `comment` field of the IP set entries to the username of the respective PacketFence user, so make sure to create all ipset with the `comment` keyword (see firewall integration below).
-
-## Parameters
-
-**ipset-rpcd** supports the following commandline parameters
-
-~~~
-usage: ipset-rpcd.py [-h] [--bind BIND] [--port PORT] [--config CONFIG]
-
-optional arguments:
-  -h, --help       show this help message and exit
-  --bind BIND      the ip address to bind to (default: 127.0.0.1)
-  --port PORT      the port to listen on (default: 9090)
-  --config CONFIG  config file to read ipset mapping from (default:
-                   ipset.conf)
-~~~
+  1. [Installation](#installation)
+  1. [Parameters](#parameters)
+  1. [Configuration](#configuration)
+  1. [Firewall Integration](#firewall-integration)
+  1. [Credits](#credits)
 
 ## Installation
 
@@ -164,6 +115,63 @@ Finally, enable the vhost and restart nginx
 ln -s ../sites-available/ipset-rpcd /etc/nginx/sites-enabled
 systemctl restart nginx
 ~~~
+
+## Parameters
+
+**ipset-rpcd** supports the following commandline parameters
+
+~~~
+usage: ipset-rpcd.py [-h] [--bind BIND] [--port PORT] [--config CONFIG]
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --bind BIND      the ip address to bind to (default: 127.0.0.1)
+  --port PORT      the port to listen on (default: 9090)
+  --config CONFIG  config file to read ipset mapping from (default:
+                   ipset.conf)
+~~~
+
+## Configuration
+
+The behavior of **ipset-rpcd** is controlled by an ini-style text file, which is read on startup and on SIGUSR1.
+
+It maps PacketFence users and roles to one or many IP sets. It can contain the following sections:
+
+### roles
+
+Assign IP sets to PacketFence roles. Keys are the roles, values are the name of an IP set or multiple IP sets, separated by commas. So if you wanted members of roles `staff` and `admin` in an IP set named `role-staff`, but users with role `admin` should also be in the ipset `role-admin`, you would use:
+
+~~~
+[roles]
+staff = role-staff
+admin = role-staff, role-admin
+~~~
+
+### users
+
+Assign IP sets to individual PacketFence users. Keys are usernames, values are the name of an IP set or multiple IP sets, separated by commas. So if you want the user `johndoe` to be added to the
+IP sets `service-http` and `service-proxy` you would use:
+
+~~~
+[users]
+johndoe = service-http, service-proxy
+~~~
+
+### ipsets
+
+By default, all IP sets are IP based only. In some circumstances, you may want to match on MAC or MAC/IP. Keys are names of IP sets, values are the `*-ENTRY` arguments to `sudo ipset add` and `sudo ipset del` respectively. The following placeholders can be used:
+  * `{mac}`
+  * `{ip}`
+
+So if the IP set `role-local` was of type `bitmap:ip,mac` you would use
+~~~
+[ipsets]
+role-local = {ip},{mac}
+~~~
+
+*IP sets used in the `[roles]` or `[users]` sections do not have to be specified here when they are IP based only.*
+
+Note that **ipset-rpcd** sets the `comment` field of the IP set entries to the username of the respective PacketFence user, so make sure to create all ipset with the `comment` keyword (see firewall integration below).
 
 ## Firewall integration
 
