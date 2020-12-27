@@ -181,4 +181,4 @@ SSH(ACCEPT)  user:+role-admin mgnt
 
 
 [PacketFence]: https://www.packetfence.org
-[PacketFence Guide]: https://packetfence.org/doc/PacketFence_JSON-RPC_Quick_Install_Guide.html
+[PacketFence Guide]: https://www.packetfence.org/doc/PacketFence_Installation_Guide.html#_json_rpc
