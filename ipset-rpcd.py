@@ -101,7 +101,7 @@ class Ipset_rpcd:
             ).format(
             user=user, mac=mac, ip=ip, role=role))
 
-        okay = self._update_user("remove", user, mac, ip, role, timeout)
+        okay = self._update_user("del", user, mac, ip, role, timeout)
 
         return self.OK if okay else self.ERROR
 
@@ -132,7 +132,7 @@ class Ipset_rpcd:
         return okay
 
     def _update_ipset(self, ipset, action, user, mac, ip, role, timeout):
-        if action not in ["add", "remove"]:
+        if action not in ["add", "del"]:
             self.log.error("Unknown action {}".format(action))
             return False
 
