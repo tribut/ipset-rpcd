@@ -35,7 +35,15 @@ cd /opt/stunet
 git clone https://github.com/tribut/ipset-rpcd.git
 ~~~
 
-### 2. Modify the configuration
+### 2. Install Python Dependencies
+
+At the moment this should just be one module.
+
+~~~
+pip3 install -r requirements.txt
+~~~
+
+### 3. Modify the configuration
 
 You can start by using the example as a template. See below for a [comprehensive guide on the config file syntax](#configuration).
 
@@ -44,7 +52,7 @@ cp ipset.conf.example ipset.conf
 vim ipset.conf
 ~~~
 
-### 3. Add the systemd service and sudo rules
+### 4. Add the systemd service and sudo rules
 
 ~~~
 adduser --system ipset-rpcd
@@ -68,7 +76,7 @@ systemctl start ipset-rpcd.service
 curl -d '{"jsonrpc":"2.0","method":"Start","params":{"user":"lzammit","mac":"00:11:22:33:44:55","ip":"1.2.3.4","role":"default","timeout":86400},"id":42}' http://localhost:9090
 ~~~
 
-### 4. Set up nginx
+### 5. Set up nginx
 
 Install nginx and its config file
 
@@ -91,7 +99,7 @@ ln -s ../sites-available/ipset-rpcd /etc/nginx/sites-enabled
 systemctl restart nginx
 ~~~
 
-### 5. Enable SSO in PacketFence
+### 6. Enable SSO in PacketFence
 
 A short [guide on how to set up PacketFence SSO with ipset-rpcd][PacketFence Guide] is available on the PacketFence website.
 

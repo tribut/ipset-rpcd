@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 User=ipset-rpcd
 WorkingDirectory=/opt/stunet/ipset-rpcd
-ExecStart=/usr/bin/python /opt/stunet/ipset-rpcd/ipset-rpcd.py
+ExecStart=/usr/bin/python3 /opt/stunet/ipset-rpcd/ipset-rpcd.py
 Restart=always
 ExecReload=/bin/kill -USR1 $MAINPID
 
